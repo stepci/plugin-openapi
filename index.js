@@ -4,7 +4,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 const defaultOptions = {
   generator: {
     pathParams: true,
-    body: true,
+    requestBody: true,
     optionalParams: true,
     useExampleValues: true,
     useDefaultValues: true
@@ -101,7 +101,7 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
         })
       }
 
-      if (options.generator.body && swagger.paths[path][method].requestBody && (!options.generator.optionalParams ? swagger.paths[path][method].requestBody.required : true)) {
+      if (options.generator.requestBody && swagger.paths[path][method].requestBody && (!options.generator.optionalParams ? swagger.paths[path][method].requestBody.required : true)) {
         const requestBody = swagger.paths[path][method].requestBody.content
 
         for (const contentType in requestBody) {
