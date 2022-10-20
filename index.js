@@ -68,8 +68,10 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
       const step = {
         id: swagger.paths[path][method].operationId,
         name: swagger.paths[path][method].summary,
-        method: method.toUpperCase(),
-        url: swagger.paths[path][method].servers ? swagger.paths[path][method].servers[0].url : path,
+        http: {
+          url: swagger.paths[path][method].servers ? swagger.paths[path][method].servers[0].url : path,
+          method: method.toUpperCase()
+        }
       }
 
       if (swagger.paths[path][method].parameters) {
@@ -81,22 +83,22 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
             || JSONSchemaFaker.generate(param.schema, taggedSchemas)
 
           if (param.in === 'path' && options.generator.pathParams) {
-            step.url = step.url.replace(`{${param.name}}`, value)
+            step.http.url = step.http.url.replace(`{${param.name}}`, value)
           }
 
           if (param.in === 'query') {
-            if (!step.params) step.params = {}
-            step.params[param.name] = value
+            if (!step.http.params) step.http.params = {}
+            step.http.params[param.name] = value
           }
 
           if (param.in === 'header') {
-            if (!step.headers) step.headers = {}
-            step.headers[param.name] = value
+            if (!step.http.headers) step.http.headers = {}
+            step.http.headers[param.name] = value
           }
 
           if (param.in === 'cookie') {
-            if (!step.cookies) step.cookies = {}
-            step.cookies[param.name] = value
+            if (!step.http.cookies) step.http.cookies = {}
+            step.http.cookies[param.name] = value
           }
         })
       }
@@ -110,45 +112,45 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
             || (requestBody[contentType].examples ? Object.values(requestBody[contentType].examples)[0].value : false )
             || JSONSchemaFaker.generate(requestBody[contentType].schema, taggedSchemas)
 
-          if (!step.headers) step.headers = {}
-          const bodyExists = step.json || step.xml || step.body || step.form || step.formData
+          if (!step.http.headers) step.http.headers = {}
+          const bodyExists = step.http.json || step.http.xml || step.http.body || step.http.form || step.http.formData
 
           switch (contentType) {
             case 'application/json':
               if (contentType == options.contentType) {
-                step.headers['Content-Type'] = contentType
-                step.headers['accept'] = contentType
-                step.json = body
+                step.http.headers['Content-Type'] = contentType
+                step.http.headers['accept'] = contentType
+                step.http.json = body
               }
               break
             case 'application/xml':
               if (contentType == options.contentType) {
-                step.headers['Content-Type'] = contentType
-                step.headers['accept'] = contentType
-                step.xml = body
+                step.http.headers['Content-Type'] = contentType
+                step.http.headers['accept'] = contentType
+                step.http.xml = body
               }
               break
             case 'application/x-www-form-urlencoded':
               if (!bodyExists) {
-                step.headers['Content-Type'] = contentType
-                step.form = body
+                step.http.headers['Content-Type'] = contentType
+                step.http.form = body
               }
               break
             case 'multipart/form-data':
               if (!bodyExists) {
-                step.headers['Content-Type'] = contentType
-                step.formData = body
+                step.http.headers['Content-Type'] = contentType
+                step.http.formData = body
               }
               break
             case 'text/plain':
               if (!bodyExists) {
-                step.headers['Content-Type'] = contentType
-                step.body = body
+                step.http.headers['Content-Type'] = contentType
+                step.http.body = body
               }
               break
             default:
-              step.headers['Content-Type'] = contentType
-              step.body = {
+              step.http.headers['Content-Type'] = contentType
+              step.http.body = {
                 file: body
               }
           }
@@ -158,17 +160,17 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
       if (swagger.paths[path][method].responses && swagger.paths[path][method].responses['200']) {
         const response = swagger.paths[path][method].responses['200'].content[options.contentType]
         if (response) {
-          step.check = {}
+          step.http.check = {}
           if (options.check.status) {
-            step.check.status = 200
+            step.http.check.status = 200
           }
 
           if (options.check.schema) {
-            step.check.schema = response.schema
+            step.http.check.schema = response.schema
           }
 
           if (options.check.examples) {
-            step.check.json = response.example || (response.examples ? Object.values(response.examples)[0].value : undefined)
+            step.http.check.json = response.example || (response.examples ? Object.values(response.examples)[0].value : undefined)
           }
         }
       }
