@@ -31,7 +31,9 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
     version: "1.0",
     name: swagger.info.title,
     config: {
-      baseURL: swagger.servers ? swagger.servers[0].url : undefined
+      http: {
+        baseURL: swagger.servers ? swagger.servers[0].url : undefined
+      }
     },
     tests: {},
   }
