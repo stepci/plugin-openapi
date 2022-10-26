@@ -1,5 +1,5 @@
-import JSONSchemaFaker from 'json-schema-faker'
-import SwaggerParser from '@apidevtools/swagger-parser'
+const JSONSchemaFaker = require('json-schema-faker')
+const SwaggerParser = require('@apidevtools/swagger-parser')
 
 const defaultOptions = {
   generator: {
@@ -19,7 +19,7 @@ const defaultOptions = {
 
 JSONSchemaFaker.format('binary', () => 'file.txt')
 
-export async function generateWorkflow (file, {options = defaultOptions}) {
+async function generateWorkflow (file, {options = defaultOptions}) {
   JSONSchemaFaker.option({
     alwaysFakeOptionals: options.optionalParams,
     useExamplesValue: options.useExampleValues,
@@ -35,7 +35,7 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
         baseURL: swagger.servers ? swagger.servers[0].url : undefined
       }
     },
-    tests: {},
+    flows: {},
   }
 
   if (options.check.schema) {
@@ -51,13 +51,13 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
 
   if (swagger.tags) {
     swagger.tags.forEach(tag => {
-      workflow.tests[tag.name] = {
+      workflow.flows[tag.name] = {
         name: tag.description,
         steps: []
       }
     })
   } else {
-    workflow.tests = {
+    workflow.flows = {
       default: {
         name: 'Default',
         steps: []
@@ -178,12 +178,16 @@ export async function generateWorkflow (file, {options = defaultOptions}) {
       }
 
       if (swagger.tags) {
-        swagger.paths[path][method].tags.forEach(tag => workflow.tests[tag].steps.push(step))
+        swagger.paths[path][method].tags.forEach(tag => workflow.flows[tag].steps.push(step))
       } else {
-        workflow.tests.default.steps.push(step)
+        workflow.flows.default.steps.push(step)
       }
     }
   }
 
   return workflow
+}
+
+module.exports = {
+  generateWorkflow
 }
