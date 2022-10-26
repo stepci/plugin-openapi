@@ -35,7 +35,7 @@ async function generateWorkflow (file, {options = defaultOptions}) {
         baseURL: swagger.servers ? swagger.servers[0].url : undefined
       }
     },
-    flows: {},
+    tests: {},
   }
 
   if (options.check.schema) {
@@ -51,13 +51,13 @@ async function generateWorkflow (file, {options = defaultOptions}) {
 
   if (swagger.tags) {
     swagger.tags.forEach(tag => {
-      workflow.flows[tag.name] = {
+      workflow.tests[tag.name] = {
         name: tag.description,
         steps: []
       }
     })
   } else {
-    workflow.flows = {
+    workflow.tests = {
       default: {
         name: 'Default',
         steps: []
@@ -178,9 +178,9 @@ async function generateWorkflow (file, {options = defaultOptions}) {
       }
 
       if (swagger.tags) {
-        swagger.paths[path][method].tags.forEach(tag => workflow.flows[tag].steps.push(step))
+        swagger.paths[path][method].tags.forEach(tag => workflow.tests[tag].steps.push(step))
       } else {
-        workflow.flows.default.steps.push(step)
+        workflow.tests.default.steps.push(step)
       }
     }
   }
