@@ -167,7 +167,7 @@ async function generateWorkflow (file, options) {
       if (swagger.paths[path][method].responses && swagger.paths[path][method].responses['200']) {
         const response = swagger.paths[path][method].responses['200'].content[options.contentType]
         if (response) {
-          step.http.check = {}
+          if (Object.keys(options.check).length !== 0) step.http.check = {}
           if (options.check.status) {
             step.http.check.status = 200
           }
@@ -194,7 +194,7 @@ async function generateWorkflow (file, options) {
 }
 
 async function generateWorkflowFile (file, output, options) {
-  return fs.promises.writeFile(output, dump(await generateWorkflow(file, merge(defaultOptions, options)), {
+  return fs.promises.writeFile(output, dump(await generateWorkflow(file, options), {
     quotingType: '"'
   }))
 }
