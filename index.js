@@ -2,6 +2,7 @@ const JSONSchemaFaker = require('json-schema-faker')
 const SwaggerParser = require('@apidevtools/swagger-parser')
 const { dump } = require('js-yaml')
 const fs = require('fs')
+const merge = require('deepmerge')
 
 const defaultOptions = {
   generator: {
@@ -21,7 +22,9 @@ const defaultOptions = {
 
 JSONSchemaFaker.format('binary', () => 'file.txt')
 
-async function generateWorkflow (file, { options = defaultOptions }) {
+async function generateWorkflow (file, options) {
+  options = merge(defaultOptions, options)
+
   JSONSchemaFaker.option({
     alwaysFakeOptionals: options.optionalParams,
     useExamplesValue: options.useExampleValues,
@@ -190,8 +193,8 @@ async function generateWorkflow (file, { options = defaultOptions }) {
   return workflow
 }
 
-async function generateWorkflowFile (file, output, options = defaultOptions) {
-  return fs.promises.writeFile(output, dump(await generateWorkflow(file, options), {
+async function generateWorkflowFile (file, output, options) {
+  return fs.promises.writeFile(output, dump(await generateWorkflow(file, merge(defaultOptions, options)), {
     quotingType: '"'
   }))
 }

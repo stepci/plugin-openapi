@@ -15,4 +15,4 @@ export declare type GenerateWorkflowOptions = {
 }
 
 export declare function generateWorkflow(file: any, options: GenerateWorkflowOptions): Promise<object>
-export declare function generateWorkflowFile(file: any, output: string, options: GenerateWorkflowOptions): Promise
+export declare function generateWorkflowFile(file: any, output: string, options: GenerateWorkflowOptions): Promise<any>
