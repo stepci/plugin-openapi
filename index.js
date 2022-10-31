@@ -1,5 +1,7 @@
 const JSONSchemaFaker = require('json-schema-faker')
 const SwaggerParser = require('@apidevtools/swagger-parser')
+const { dump } = require('js-yaml')
+const fs = require('fs')
 
 const defaultOptions = {
   generator: {
@@ -19,7 +21,7 @@ const defaultOptions = {
 
 JSONSchemaFaker.format('binary', () => 'file.txt')
 
-async function generateWorkflow (file, {options = defaultOptions}) {
+async function generateWorkflow (file, { options = defaultOptions }) {
   JSONSchemaFaker.option({
     alwaysFakeOptionals: options.optionalParams,
     useExamplesValue: options.useExampleValues,
@@ -188,6 +190,13 @@ async function generateWorkflow (file, {options = defaultOptions}) {
   return workflow
 }
 
+async function generateWorkflowFile (file, output, options = defaultOptions) {
+  return fs.promises.writeFile(output, dump(await generateWorkflow(file, options), {
+    quotingType: '"'
+  }))
+}
+
 module.exports = {
-  generateWorkflow
+  generateWorkflow,
+  generateWorkflowFile
 }
