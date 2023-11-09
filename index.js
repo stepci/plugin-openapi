@@ -10,7 +10,8 @@ const defaultOptions = {
     requestBody: true,
     optionalParams: true,
     useExampleValues: true,
-    useDefaultValues: true
+    useDefaultValues: true,
+    inlineSchema: true
   },
   check: {
     status: true,
@@ -45,8 +46,10 @@ async function generateWorkflow (file, options) {
 
   const taggedSchemas = []
   if (swagger.components?.schemas) {
-    workflow.components = {
-      schemas: swagger.components?.schemas
+    if (options.generator.inlineSchema) {
+      workflow.components = {
+        schemas: swagger.components?.schemas
+      }
     }
 
     for (const schema in swagger.components.schemas) {
@@ -61,13 +64,6 @@ async function generateWorkflow (file, options) {
         steps: []
       }
     })
-  } else {
-    workflow.tests = {
-      default: {
-        name: 'Default',
-        steps: []
-      }
-    }
   }
 
   for (const path in swagger.paths) {
@@ -186,9 +182,16 @@ async function generateWorkflow (file, options) {
         }
       }
 
-      if (swagger.tags) {
+      if (swagger.tags && swagger.paths[path][method].tags) {
         swagger.paths[path][method].tags.forEach(tag => workflow.tests[tag].steps.push(step))
       } else {
+        if (!workflow.tests.default) {
+          workflow.tests.default = {
+            name: 'Default',
+            steps: []
+          }
+        }
+
         workflow.tests.default.steps.push(step)
       }
     }
