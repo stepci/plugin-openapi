@@ -43,15 +43,15 @@ async function generateWorkflow (file, options) {
     tests: {},
   }
 
-  if (options.check.schema) {
-    workflow.components = {
-      schemas: swagger.components.schemas
-    }
-  }
-
   const taggedSchemas = []
-  for (const schema in swagger.components.schemas) {
-    taggedSchemas.push({ id: `#/components/schemas/${schema}`, ...swagger.components.schemas[schema]})
+  if (swagger.components?.schemas) {
+    workflow.components = {
+      schemas: swagger.components?.schemas
+    }
+
+    for (const schema in swagger.components.schemas) {
+      taggedSchemas.push({ id: `#/components/schemas/${schema}`, ...swagger.components.schemas[schema] })
+    }
   }
 
   if (swagger.tags) {
@@ -164,20 +164,24 @@ async function generateWorkflow (file, options) {
         }
       }
 
-      if (swagger.paths[path][method].responses && swagger.paths[path][method].responses['200']) {
-        const response = swagger.paths[path][method].responses['200'].content[options.contentType]
+      if (swagger.paths[path][method].responses) {
+        const response = Object.values(swagger.paths[path][method].responses)[0]
+        const responseContent =  response.content?.[options.contentType]
+
         if (response) {
           if (Object.keys(options.check).length !== 0) step.http.check = {}
           if (options.check.status) {
-            step.http.check.status = 200
+            step.http.check.status = Object.keys(swagger.paths[path][method].responses)[0] === 'default' ? 200 : Number()
           }
+        }
 
+        if (responseContent) {
           if (options.check.schema) {
-            step.http.check.schema = response.schema
+            step.http.check.schema = responseContent.schema
           }
 
           if (options.check.examples) {
-            step.http.check.json = response.example || (response.examples ? Object.values(response.examples)[0].value : undefined)
+            step.http.check.json = responseContent.example || (responseContent.examples ? Object.values(responseContent.examples)[0].value : undefined)
           }
         }
       }
