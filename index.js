@@ -167,7 +167,7 @@ async function generateWorkflow (file, options) {
         if (response) {
           if (Object.keys(options.check).length !== 0) step.http.check = {}
           if (options.check.status) {
-            step.http.check.status = Object.keys(swagger.paths[path][method].responses)[0] === 'default' ? 200 : Number()
+            step.http.check.status = Number(Object.keys(swagger.paths[path][method].responses)[0])
           }
         }
 
