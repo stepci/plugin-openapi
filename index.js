@@ -187,7 +187,15 @@ async function generateWorkflow (file, options) {
       }
 
       if (swagger.tags && swagger.paths[path][method].tags) {
-        swagger.paths[path][method].tags.forEach(tag => workflow.tests[tag].steps.push(step))
+        swagger.paths[path][method].tags.forEach(tag => {
+          if(Object.keys(workflow.tests).includes(tag)){
+            workflow.tests[tag].steps.push(step)
+          }else{
+            workflow.tests[tag] = {
+              name: undefined,
+              steps: [step]
+            }
+          }})
       } else {
         if (!workflow.tests.default) {
           workflow.tests.default = {
