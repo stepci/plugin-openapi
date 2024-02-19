@@ -1,6 +1,6 @@
 {
   "name": "@stepci/plugin-openapi",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Step CI OpenAPI Plugin",
   "main": "index.js",
   "repository": {
