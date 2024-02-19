@@ -57,15 +57,6 @@ async function generateWorkflow (file, options) {
     }
   }
 
-  if (swagger.tags) {
-    swagger.tags.forEach(tag => {
-      workflow.tests[tag.name] = {
-        name: tag.description,
-        steps: []
-      }
-    })
-  }
-
   for (const path in swagger.paths) {
     for (const method in swagger.paths[path]) {
       const step = {
@@ -192,7 +183,7 @@ async function generateWorkflow (file, options) {
             workflow.tests[tag].steps.push(step)
           } else {
             workflow.tests[tag] = {
-              name: undefined,
+              name: swagger.tags.find((item) => item.name === tag).description,
               steps: [step],
             }
           }
