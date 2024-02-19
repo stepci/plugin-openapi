@@ -183,7 +183,7 @@ async function generateWorkflow (file, options) {
             workflow.tests[tag].steps.push(step)
           } else {
             workflow.tests[tag] = {
-              name: swagger.tags.find((item) => item.name === tag).description,
+              name: swagger.tags?.find((item) => item.name === tag)?.description,
               steps: [step],
             }
           }
