@@ -71,10 +71,10 @@ async function generateWorkflow (file, options) {
       if (swagger.paths[path][method].parameters) {
         swagger.paths[path][method].parameters.filter(param => !options.generator.optionalParams ? param.required : true).forEach(param => {
           const value =
-            param.schema.default
+            param.schema?.default
             || param.example
             || (param.examples ? Object.values(param.examples)[0].value : false)
-            || JSONSchemaFaker.generate(param.schema, taggedSchemas)
+            || param.schema ? JSONSchemaFaker.generate(param.schema, taggedSchemas) : false
 
           if (param.in === 'path' && options.generator.pathParams) {
             step.http.url = step.http.url.replace(`{${param.name}}`, value)
