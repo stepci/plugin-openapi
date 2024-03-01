@@ -73,7 +73,7 @@ async function generateWorkflow (file, options) {
           const value =
             param.schema?.default
             || param.example
-            || (param.examples ? Object.values(param.examples)[0].value : false)
+            || (param.examples && Object.keys(param.examples > 0) ? Object.values(param.examples)[0].value : false)
             || param.schema ? JSONSchemaFaker.generate(param.schema, taggedSchemas) : false
 
           if (param.in === 'path' && options.generator.pathParams) {
@@ -103,7 +103,7 @@ async function generateWorkflow (file, options) {
         for (const contentType in requestBody) {
           const body =
             requestBody[contentType].example
-            || (requestBody[contentType].examples ? Object.values(requestBody[contentType].examples)[0].value : false )
+            || (requestBody[contentType].examples && Object.keys(requestBody[contentType].examples) > 0) ? Object.values(requestBody[contentType].examples)[0].value : false
             || JSONSchemaFaker.generate(requestBody[contentType].schema, taggedSchemas)
 
           if (!step.http.headers) step.http.headers = {}
